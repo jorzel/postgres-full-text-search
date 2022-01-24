@@ -1,0 +1,12 @@
+# Flake8 explicitly will not support pyproject.toml :(
+
+[flake8]
+extend-ignore=
+    E402,
+    E501,
+    W503,
+extend-exclude=
+    .venv,
+    migrations,
+
+# vi: ft=dosini
