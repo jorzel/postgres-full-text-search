@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from db import SQLALCHEMY_DATABASE_URI, BaseModel
+from db import SQLALCHEMY_DATABASE_URI, BaseModel, toregconfig_function_command
 from models import Document
 
 
@@ -15,6 +15,7 @@ def model_base():
 def db_connection(model_base):
     engine = create_engine(SQLALCHEMY_DATABASE_URI)
     model_base.metadata.drop_all()
+    engine.execute(toregconfig_function_command())
     model_base.metadata.create_all()
     connection = engine.connect()
     model_base.metadata.bind = engine

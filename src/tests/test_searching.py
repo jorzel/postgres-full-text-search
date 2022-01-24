@@ -18,7 +18,7 @@ from filtering import filter_documents
 def test_filter_full_text_search_en(text, search_pattern, db_session, document_factory):
     language = "en"
     document = document_factory(text=text, language="en")
-    document = document_factory(text="", language=language)
+    _ = document_factory(text="", language=language)
 
     results = filter_documents(db_session, language, search=search_pattern)
 

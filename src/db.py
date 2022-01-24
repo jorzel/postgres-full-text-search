@@ -10,6 +10,22 @@ logger = logging.getLogger(__name__)
 pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 
+def toregconfig_function_command():
+    return """
+         CREATE OR REPLACE FUNCTION toregconfig(text)
+         RETURNS regconfig AS 'select (
+            case
+            when $1=''fr'' then ''french''
+            when $1=''es'' then ''spanish''
+            when $1=''pl'' then ''polish''
+            when $1=''ru'' then ''russian''
+            else ''simple''
+            end
+        )::regconfig;' LANGUAGE SQL IMMUTABLE
+        RETURNS NULL ON NULL INPUT;
+    """
+
+
 def camel_case_to_underscore(name: str) -> str:
     return pattern.sub("_", name).lower()
 
