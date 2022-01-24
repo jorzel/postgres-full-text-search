@@ -12,3 +12,8 @@ class Document(BaseModel):
     __table_args__ = (
         Index("ix_document_tsvector_text", tsvector_text, postgresql_using="gin"),
     )
+
+    def __str__(self):
+        return f"Document(text={self.text}, language={self.language}"
+
+    __repr__ = __str__

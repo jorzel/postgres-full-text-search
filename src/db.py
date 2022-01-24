@@ -10,6 +10,27 @@ logger = logging.getLogger(__name__)
 pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 
+def polish_text_search_configuration_command():
+    return """
+        DROP TEXT SEARCH DICTIONARY IF EXISTS polish_hunspell CASCADE;
+        CREATE TEXT SEARCH DICTIONARY polish_hunspell (
+            TEMPLATE  = ispell,
+            DictFile  = polish,
+            AffFile   = polish,
+            StopWords = polish
+        );
+        CREATE TEXT SEARCH CONFIGURATION public.polish (
+            COPY = pg_catalog.english
+        );
+        ALTER TEXT SEARCH CONFIGURATION polish
+            ALTER MAPPING
+            FOR
+                asciiword, asciihword, hword_asciipart,  word, hword, hword_part
+            WITH
+                polish_hunspell, simple;
+    """
+
+
 def toregconfig_function_command():
     return """
          CREATE OR REPLACE FUNCTION toregconfig(text)
