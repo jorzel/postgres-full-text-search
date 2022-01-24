@@ -6,6 +6,7 @@ from filtering import filter_documents
 @pytest.mark.parametrize(
     "text, search_pattern",
     [
+        ("test", "test"),
         ("benefit", "benefits"),
         ("benefits", "benefit"),
         ("work", "working"),

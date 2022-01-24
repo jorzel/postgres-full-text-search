@@ -19,6 +19,7 @@ def toregconfig_function_command():
             when $1=''es'' then ''spanish''
             when $1=''pl'' then ''polish''
             when $1=''ru'' then ''russian''
+            when $1=''en'' then ''english''
             else ''simple''
             end
         )::regconfig;' LANGUAGE SQL IMMUTABLE
