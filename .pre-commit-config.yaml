@@ -1,0 +1,23 @@
+default_language_version:
+  python: python3.9
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        language: system
+        entry: black
+        args: ["--check"]
+        types: [python]
+      - id: isort
+        name: isort
+        language: system
+        entry: isort
+        args: ["--check", "--diff"]
+        types: [python]
+      - id: flake8
+        name: flake8
+        language: system
+        entry: flake8
+        types: [python]
+        exclude: "migrations"
