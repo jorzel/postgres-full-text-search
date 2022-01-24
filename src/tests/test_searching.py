@@ -1,21 +1,6 @@
 import pytest
 
-
-@pytest.fixture
-def db_session():
-    return None
-
-
-@pytest.fixture
-def document_factory(db_session):
-    def _document_factory(text, language):
-        return None
-
-    yield _document_factory
-
-
-def filter_documents(session, language, search):
-    return []
+from filtering import filter_documents
 
 
 @pytest.mark.parametrize(
@@ -26,11 +11,14 @@ def filter_documents(session, language, search):
         ("work", "working"),
         ("working hours", "work hour"),
         ("checking type", "check types"),
+        ("Best person at the world", "best world"),
+        ("I like swimming and fishing. I have finished a book about it", "swim finish"),
     ],
 )
 def test_filter_full_text_search_en(text, search_pattern, db_session, document_factory):
     language = "en"
     document = document_factory(text=text, language="en")
+    document = document_factory(text="", language=language)
 
     results = filter_documents(db_session, language, search=search_pattern)
 

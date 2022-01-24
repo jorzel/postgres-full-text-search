@@ -1,0 +1,2 @@
+sqlalchemy==1.4.31
+psycopg2==2.9.3
