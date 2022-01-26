@@ -3,7 +3,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from db import (
-    SQLALCHEMY_DATABASE_URI,
     BaseModel,
     polish_text_search_configuration_command,
     toregconfig_function_command,
@@ -18,13 +17,14 @@ def model_base():
 
 @pytest.yield_fixture(scope="session")
 def db_connection(model_base):
+    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@localhost:5432/testdb"
     engine = create_engine(SQLALCHEMY_DATABASE_URI)
+    model_base.metadata.bind = engine
     model_base.metadata.drop_all()
     engine.execute(toregconfig_function_command())
     engine.execute(polish_text_search_configuration_command())
     model_base.metadata.create_all()
     connection = engine.connect()
-    model_base.metadata.bind = engine
 
     yield connection
 

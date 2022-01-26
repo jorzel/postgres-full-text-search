@@ -64,7 +64,7 @@ class Base:
     id = Column(Integer, primary_key=True, autoincrement=True)
 
 
-SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@localhost:5432/testdb"
+SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@localhost:5432/ftdb"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 metadata = MetaData(bind=engine)

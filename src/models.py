@@ -10,7 +10,18 @@ class Document(BaseModel):
     tsvector_text = func.to_tsvector(func.toregconfig(language), text)
 
     __table_args__ = (
-        Index("ix_document_tsvector_text", tsvector_text, postgresql_using="gin"),
+        Index(
+            "ix_pl_document_tsvector_text",
+            func.to_tsvector("polish", text),
+            postgresql_using="gin",
+            postgresql_where=(language == "pl"),
+        ),
+        Index(
+            "ix_en_document_tsvector_text",
+            func.to_tsvector("english", text),
+            postgresql_using="gin",
+            postgresql_where=(language == "en"),
+        ),
     )
 
     def __str__(self):
