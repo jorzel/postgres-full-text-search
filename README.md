@@ -186,6 +186,7 @@ We have to add to query a condition that was used to create partial index: `docu
 ```
 
 ## Tsearch full text search with partial words
+`:*` operator enables prefix search. It can be useful to execute full text search during typing a word.
 ```sql
 >> EXPLAIN ANALYZE SELECT text, language
    FROM public.document
