@@ -1,5 +1,5 @@
 # postgres-full-text-search
-Postgres full text search options (tsearch, trigram) examples.
+Postgres full text search options (tsearch, trigram, ilike) examples.
 
 
 ## Create DB
@@ -274,3 +274,16 @@ It depends...
 > - GIN indexes take about three times longer to build than GiST
 > - GIN indexes are moderately slower to update than GiST indexes, but about 10 times slower if fast-update support was disabled (see Section 58.4.1 for details)
 > - GIN indexes are two-to-three times larger than GiST indexes
+
+## Inspiration and help
+- https://about.gitlab.com/blog/2016/03/18/fast-search-using-postgresql-trigram-indexes/
+- http://rachbelaid.com/postgres-full-text-search-is-good-enough/
+- https://scoutapm.com/blog/how-to-make-text-searches-in-postgresql-faster-with-trigram-similarity
+- https://stackoverflow.com/questions/27443950/make-postgres-full-text-search-tsvector-act-like-ilike-to-search-inside-words
+- https://stackoverflow.com/questions/46122175/fulltext-search-combined-with-fuzzysearch-in-postgresql
+- https://stackoverflow.com/questions/58651852/use-postgresql-full-text-search-to-fuzzy-match-all-search-terms
+- https://stackoverflow.com/questions/52140727/fuzzy-search-in-full-text-search
+- https://stackoverflow.com/questions/2513501/postgresql-full-text-search-how-to-search-partial-words
+- https://stackoverflow.com/questions/28975517/difference-between-gist-and-gin-index
+- https://dba.stackexchange.com/questions/149765/postgresql-gin-index-not-used-when-ts-query-language-is-fetched-from-a-column
+- https://dba.stackexchange.com/questions/251177/postgres-full-text-search-on-words-not-lexemes
