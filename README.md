@@ -193,37 +193,51 @@ We have to add to query a condition that was used to create partial index: `docu
          Index Cond: (to_tsvector('english'::regconfig, text) @@ '''field'' & ''window'' & ''l'':*'::tsquery)
  Planning Time: 0.240 ms
  Execution Time: 5.240 ms
+
+>> SELECT id,  text
+   FROM public.document
+   WHERE
+      to_tsvector('english', text) @@ to_tsquery('english', 'fielded & window & l:*')
+      AND language = 'en'
+   LIMIT 20;
+  id   |                                                   text
+-------+-----------------------------------------------------------------------------------------------------------
+     1 | ﻿degree ranch time tall depth men below dead window waste underline bat lamp putting field               +
+ 20152 | Law pony follow memory star whatever window sets oxygen longer word whom glass field actual              +
+ 21478 | Dried symbol willing design managed shade window pick share faster education drive field land everybody  +
+ 30293 | Pencil seen engineer labor image entire smallest serve field should riding smaller window imagine traffic+
+
 ```
 
 ## Tsearch full text search results ranking
 ```sql
 >> SELECT
-     text,
-     language,
-     ts_rank_cd(to_tsvector('english', text), to_tsquery('english', 'fielded & wind:*')) rank
+     id,
+     ts_rank_cd(to_tsvector('english', text), to_tsquery('english', 'fielded & wind:*')) rank,
+     text
     FROM public.document
     WHERE to_tsvector('english', text) @@ to_tsquery('english', 'fielded & wind:*')
     ORDER BY rank DESC
     LIMIT 20;
-                                                   text                                                    | language |    rank
------------------------------------------------------------------------------------------------------------+----------+-------------
- fielded window                                                                                            | en       |         0.1
- Own mouse girl effect surprise physical newspaper forgot eat upper field element window simply unhappy   +| en       |        0.05
- Opinion fastened pencil rear more theory size window heading field understanding farm up position attack +| en       |        0.05
- Victory famous field shelter girl wind adventure he divide rear tip few studied ruler judge              +| en       | 0.033333335
- Symbol each halfway window swam spider field page shinning donkey chose until cow cabin congress         +| en       | 0.033333335
- Pencil seen engineer labor image entire smallest serve field should riding smaller window imagine traffic+| en       |       0.025
- ﻿degree ranch time tall depth men below dead window waste underline bat lamp putting field               +| en       | 0.016666668
- Dried symbol willing design managed shade window pick share faster education drive field land everybody  +| en       | 0.016666668
- However hungry make proud kids come willing field officer row above highest round wind mile              +| en       | 0.016666668
- Earth earlier pocket might sense window way frog fire court family mouth field somebody recognize        +| en       | 0.014285714
- Law pony follow memory star whatever window sets oxygen longer word whom glass field actual              +| en       | 0.014285714
- Farm weight balloon buried wind water donkey grain pig week should damage field was he                   +| en       |      0.0125
- Wind scientist leaving atom year bad child drink shore spirit field facing indicate wagon here           +| en       |        0.01
- Field cloud you wife rhythm upward applied weigh continued property replace ahead forgotten trip window  +| en       | 0.007142857
-(14 rows)
-```
+   id   |    rank     |                                                   text
+--------+-------------+-----------------------------------------------------------------------------------------------------------
+ 100002 |         0.1 | fielded window
+   9376 |        0.05 | Own mouse girl effect surprise physical newspaper forgot eat upper field element window simply unhappy   +
+  96597 |        0.05 | Opinion fastened pencil rear more theory size window heading field understanding farm up position attack +
+  44626 | 0.033333335 | Symbol each halfway window swam spider field page shinning donkey chose until cow cabin congress         +
+  80922 | 0.033333335 | Victory famous field shelter girl wind adventure he divide rear tip few studied ruler judge              +
+  30293 |       0.025 | Pencil seen engineer labor image entire smallest serve field should riding smaller window imagine traffic+
+      1 | 0.016666668 | ﻿degree ranch time tall depth men below dead window waste underline bat lamp putting field               +
+  21478 | 0.016666668 | Dried symbol willing design managed shade window pick share faster education drive field land everybody  +
+  60059 | 0.016666668 | However hungry make proud kids come willing field officer row above highest round wind mile              +
+  26001 | 0.014285714 | Earth earlier pocket might sense window way frog fire court family mouth field somebody recognize        +
+  20152 | 0.014285714 | Law pony follow memory star whatever window sets oxygen longer word whom glass field actual              +
+  37470 |      0.0125 | Farm weight balloon buried wind water donkey grain pig week should damage field was he                   +
+  49433 |        0.01 | Wind scientist leaving atom year bad child drink shore spirit field facing indicate wagon here           +
+  37851 | 0.007142857 | Field cloud you wife rhythm upward applied weigh continued property replace ahead forgotten trip window  +
 
+```
+`text='fielded window'` record was added manually to show best match result.
 
 ## GIST vs GIN
 We have created GIN index. But there is also GIST index option. Which one is better?
