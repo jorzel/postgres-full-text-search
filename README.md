@@ -137,6 +137,7 @@ If you cannot provide dictionary files you can use full text in "simple" form (w
 ```
 
 ## Tsearch full text search with stored partial index ('en')
+Partial index gives as a possibility to store records in different languages using one table and query them effectively.
 ```sql
 >> CREATE INDEX ix_en_document_tsvector_text ON public.document USING gin (to_tsvector('english'::regconfig, text)) WHERE language = 'en';
 CREATED INDEX
