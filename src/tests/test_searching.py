@@ -29,6 +29,29 @@ def test_filter_full_text_search_en(text, search_pattern, db_session, document_f
 @pytest.mark.parametrize(
     "text, search_pattern",
     [
+        ("benefit", "benef"),
+        ("working hours", "work hou"),
+        ("checking type", "check t"),
+        ("Best person at the world", "best worl"),
+        ("I like swimming and fishing. I have finished a book about it", "swim fin"),
+    ],
+)
+def test_filter_partial_words_full_text_search_en(
+    text, search_pattern, db_session, document_factory
+):
+    language = "en"
+    document = document_factory(text=text, language=language)
+    _ = document_factory(text="", language=language)
+
+    results = filter_documents(db_session, language, search=search_pattern)
+
+    assert results.count() == 1
+    assert results.first() == document
+
+
+@pytest.mark.parametrize(
+    "text, search_pattern",
+    [
         ("test", "test"),
         ("Benefity w firmie", "benefit"),
         ("Benefity w firmie", "firma benefity"),
