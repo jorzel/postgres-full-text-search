@@ -55,20 +55,18 @@ CREATE INDEX
                Index Cond: ((text ~~* '%field%'::text) AND (text ~~* '%window%'::text) AND (text ~~* '%lamp%'::text) AND (text ~~* '%research%'::text))
  Planning Time: 2.389 ms
  Execution Time: 1.524 ms
-(7 rows)
-
 ```
 
 ## Create non-default language configuration for tsearch full text search
 Postgres does not provide support for many languages by default. However, you can
-setup the configuration quite easily. You just need additional dictonary files.
+setup the configuration quite easily. You just need additional dictionary files.
 Here is an example for polish language.
-Polish dictonary files can be downloaded from: https://github.com/judehunter/polish-tsearch.
+Polish dictionary files can be downloaded from: https://github.com/judehunter/polish-tsearch.
 
-polish.affix, polish.stop and polish.dict files should be copied to postgres `tsearch_data` location,
+polish.affix, polish.stop and polish.dict files should be copied to postgresql `tsearch_data` location,
 e.g. `/usr/share/postgresql/13/tsearch_data`.
 
-There also must be created a configuration (see the [!docs](https://www.postgresql.org/docs/current/textsearch-dictionaries.html)) inside database:
+There also must be created a configuration (see the [docs](https://www.postgresql.org/docs/current/textsearch-dictionaries.html)) inside database:
 ```sql
 >> DROP TEXT SEARCH DICTIONARY IF EXISTS polish_hunspell CASCADE;
    CREATE TEXT SEARCH DICTIONARY polish_hunspell (
@@ -88,8 +86,8 @@ There also must be created a configuration (see the [!docs](https://www.postgres
         polish_hunspell, simple;
 
 ```
-You need these files because full text use lexeme comparing to find best results
-(both query pattern and stored text is lexemized):
+You need these files and configuration because full text search engine uses lexeme comparing to find best matches
+(both query pattern and stored text are lexemized):
 ```sql
 >> SELECT to_tsquery('english', 'fielded'), to_tsvector('english', text)
    FROM document
@@ -101,17 +99,15 @@ You need these files because full text use lexeme comparing to find best results
 If you cannot provide dictionary files you can use full text in "simple" form (without transformation to lexeme):
 
 ```sql
->> SELECT to_tsquery('english', 'fielded'), to_tsvector('english', text)
+>> SELECT to_tsquery('simple', 'fielded'), to_tsvector('simple', text)
    FROM document
    LIMIT 1;
- to_tsquery |                                                                    to_tsvector
-------------+----------------------------------------------------------------------------------------------------------------------------------------------------
- 'field'    | '19':16 'bat':12 'dead':8 'degre':1 'depth':5 'field':15 'lamp':13 'men':6 'put':14 'ranch':2 'tall':4 'time':3 'underlin':11 'wast':10 'window':9
-(1 row)
-
+ to_tsquery |                                                                             to_tsvector
+------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 'fielded'  | '19':16 'bat':12 'below':7 'dead':8 'degree':1 'depth':5 'field':15 'lamp':13 'men':6 'putting':14 'ranch':2 'tall':4 'time':3 'underline':11 'waste':10 'window':9
 ```
 
-## Tsearch full text search without stored index for `tsvector`
+## Tsearch full text search without stored index
 ```sql
 >> EXPLAIN ANALYZE SELECT text, language
    FROM public.document
@@ -131,7 +127,7 @@ If you cannot provide dictionary files you can use full text in "simple" form (w
 (9 rows)
 ```
 
-## Tsearch full text search with stored partial index ('en') for `tsvector`
+## Tsearch full text search with stored partial index ('en')
 ```sql
 >> CREATE INDEX ix_en_document_tsvector_text ON public.document USING gin (to_tsvector('english'::regconfig, text)) WHERE language = 'en';
 CREATED INDEX
@@ -153,20 +149,22 @@ CREATED INDEX
 ```
 
 No difference? Index has not been used... Why is it not working?
-Ohh, looks to the partial index [!docs](https://www.postgresql.org/docs/current/indexes-partial.html):
-> *However, keep in mind that the predicate must match the conditions used in the queries that are supposed to benefit from the index.
+Ohh, looks to the partial index [docs](https://www.postgresql.org/docs/current/indexes-partial.html):
+> However, keep in mind that the predicate must match the conditions used in the queries that are supposed to benefit from the index.
 > To be precise, a partial index can be used in a query only if the system can recognize that the WHERE condition of the query mathematically implies the predicate of the index.
 > PostgreSQL does not have a sophisticated theorem prover that can recognize mathematically equivalent expressions that are written in different forms.
 > (Not only is such a general theorem prover extremely difficult to create, it would probably be too slow to be of any real use.)
 > The system can recognize simple inequality implications, for example "x < 1" implies "x < 2";
 > otherwise the predicate condition must exactly match part of the query's WHERE condition or the index will not be recognized as usable.
-> Matching takes place at query planning time, not at run time. As a result, parameterized query clauses do not work with a partial index.*
+> Matching takes place at query planning time, not at run time. As a result, parameterized query clauses do not work with a partial index.
 
 We have to add to query a condition that was used to create partial index: `document.language = 'en'`:
 ```sql
 >> EXPLAIN ANALYZE SELECT text, language
    FROM public.document
-   WHERE to_tsvector('english', text) @@ to_tsquery('english', 'fielded & window & lamp & depth & test ') and language = 'en'
+   WHERE
+      to_tsvector('english', text) @@ to_tsquery('english', 'fielded & window & lamp & depth & test ')
+      AND language = 'en'
    LIMIT 1;                                                                           QUERY PLAN
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  Limit  (cost=64.00..68.27 rows=1 width=103) (actual time=0.546..0.548 rows=0 loops=1)
@@ -182,7 +180,9 @@ We have to add to query a condition that was used to create partial index: `docu
 ```sql
 >> EXPLAIN ANALYZE SELECT text, language
    FROM public.document
-   WHERE to_tsvector('english', text) @@ to_tsquery('english', 'fielded & window & l:*') and language = 'en'
+   WHERE
+      to_tsvector('english', text) @@ to_tsquery('english', 'fielded & window & l:*')
+      AND language = 'en'
    LIMIT 1;
                                                                    QUERY PLAN
 ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ We have to add to query a condition that was used to create partial index: `docu
  Execution Time: 5.240 ms
 ```
 
-## Tsearch full text search rank
+## Tsearch full text search results ranking
 ```sql
 >> SELECT
      text,
@@ -231,7 +231,9 @@ It depends...
 ```sql
 >> EXPLAIN ANALYZE SELECT text, language
    FROM public.document
-   WHERE to_tsvector('english', text) @@ to_tsquery('english', 'fielded & window & lamp & depth & test ') and language = 'en'
+   WHERE
+      to_tsvector('english', text) @@ to_tsquery('english', 'fielded & window & lamp & depth & test ')
+      AND language = 'en'
    LIMIT 1;
                                                                   QUERY PLAN
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -241,8 +243,8 @@ It depends...
  Planning Time: 0.274 ms
  Execution Time: 2.730 ms
  ```
- GIN seems to be a little bit faster. I don't think I could explain it better than the [!docs](https://www.postgresql.org/docs/13/textsearch-indexes.html) already does:
-> *In choosing which index type to use, GiST or GIN, consider these performance differences:
+ GIN seems to be a little bit faster. I don't think I could explain it better than the [docs](https://www.postgresql.org/docs/13/textsearch-indexes.html) already does:
+> In choosing which index type to use, GiST or GIN, consider these performance differences:
 > - GIN index lookups are about three times faster than GiST
 > - GIN indexes take about three times longer to build than GiST
 > - GIN indexes are moderately slower to update than GiST indexes, but about 10 times slower if fast-update support was disabled (see Section 58.4.1 for details)
