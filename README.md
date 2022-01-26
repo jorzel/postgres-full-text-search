@@ -31,9 +31,18 @@ To feed db with an example dataset (`dataset.txt`, 100k rows, 15 words each one)
  ```
 
 ## Full text search using `ilike` supported by trigram index
+What is a trigram? See this example:
 ```sql
 >> CREATE EXTENSION pg_trgm;
 CREATE EXTENSION
+>> select show_trgm('fielded');
+                show_trgm
+-----------------------------------------
+ {"  f"," fi",ded,"ed ",eld,fie,iel,lde}
+```
+
+We can improve `ilike` performance using trigram index, e.g. `gin_trgm_ops`.
+```sql
 >> CREATE INDEX  ix_document_text_trigram ON document USING gin (text gin_trgm_ops) where language = 'en';
 CREATE INDEX
 
