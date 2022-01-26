@@ -1,6 +1,17 @@
 # postgres-full-text-search
 Postgres full text search options (tsearch, trigram, ilike) examples.
 
+1. [Create DB](#create-db)
+2. [Full text search using simple `ilike`](#full-text-search-using-simple-ilike)
+3. [Full text search using `ilike` supported by trigram index](#full-text-search-using-ilike-supported-by-trigram-index)
+4. [Create non-default language configuration for tsearch full text search](#create-non-default-language-configuration-for-tsearch-full-text-search)
+5. [Tsearch full text search without stored index](#tsearch-full-text-search-without-stored-index)
+6. [Tsearch full text search with stored partial index](#tsearch-full-text-search-with-stored-partial-index)
+7. [Tsearch full text search for partial words](#tsearch-full-text-search-for-partial-words)
+8. [Tsearch full text search results ranking](#tsearch-full-text-search-results-ranking)
+9. [GiST vs GIN](#gist-vs-gin)
+10. [Inspiration and help](#inspiration-and-help)
+
 
 ## Create DB
 ```sql
@@ -136,7 +147,7 @@ If you cannot provide dictionary files you can use full text in "simple" form (w
 (9 rows)
 ```
 
-## Tsearch full text search with stored partial index ('en')
+## Tsearch full text search with stored partial index
 Partial index gives as a possibility to store records in different languages using one table and query them effectively.
 ```sql
 >> CREATE INDEX ix_en_document_tsvector_text ON public.document USING gin (to_tsvector('english'::regconfig, text)) WHERE language = 'en';
@@ -186,7 +197,7 @@ We have to add to query a condition that was used to create partial index: `docu
  Execution Time: 0.590 ms
 ```
 
-## Tsearch full text search with partial words
+## Tsearch full text search for partial words
 `:*` operator enables prefix search. It can be useful to execute full text search during typing a word.
 ```sql
 >> EXPLAIN ANALYZE SELECT text, language
