@@ -83,8 +83,8 @@ setup the configuration quite easily. You just need additional dictionary files.
 Here is an example for polish language.
 Polish dictionary files can be downloaded from: https://github.com/judehunter/polish-tsearch.
 
-polish.affix, polish.stop and polish.dict files should be copied to postgresql `tsearch_data` location,
-e.g. `/usr/share/postgresql/13/tsearch_data`.
+polish.affix, polish.stop and polish.dict files should be copied to postgresql sharedir `tsearch_data` location,
+e.g. `/usr/share/postgresql/13/tsearch_data`. To determin your sharedir location you can use `pg_config --sharedir`
 
 There also must be created a configuration (see the [docs](https://www.postgresql.org/docs/current/textsearch-dictionaries.html)) inside database:
 ```sql
