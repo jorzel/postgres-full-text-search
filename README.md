@@ -232,6 +232,11 @@ We have to add to query a condition that was used to create partial index: `docu
 ```
 
 ## Tsearch full text search results ranking
+There are two quite similar functions to rank tsearch results:
+- `ts_rank`, that ranks vectors based on the frequency of their matching lexemes
+- `ts_rank_cd`, that computes the "cover density" ranking
+
+For more info, see the [docs](https://www.postgresql.org/docs/13/textsearch-controls.html)
 ```sql
 >> SELECT
      id,
